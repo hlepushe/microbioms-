@@ -1,15 +1,29 @@
-скачала 3 рана по ссылкам:
-https://www.ncbi.nlm.nih.gov/sra/SRX24513622[accn]
-https://trace.ncbi.nlm.nih.gov/Traces/?view=run_browser&acc=SRR28984503&display=download
-https://www.ncbi.nlm.nih.gov/sra/SRX24513633[accn]
+##1) Скачала 3 рана по ссылкам и поместила их в папку dataset:
 
-разделить PairEnd на 2 SingleEnd
+https://trace.ncbi.nlm.nih.gov/Traces/?view=run_browser&acc=SRR16080651&display=download
+https://trace.ncbi.nlm.nih.gov/Traces/?view=run_browser&acc=SRR16080652&display=download
+https://trace.ncbi.nlm.nih.gov/Traces/?view=run_browser&acc=SRR16080653&display=download
+ 
+создала файл manifest.txt в которм содержатся данные(синтаксис сохранен):
 
+sample-id,absolute-filepath,direction<br /> 
+SRR16080651,/home/card/microbioms/HW1/dataset/SRR16080651.fastq,forward
+SRR16080652,/home/card/microbioms/HW1/dataset/SRR16080652.fastq,forward
+SRR16080653,/home/card/microbioms/HW1/dataset/SRR16080653.fastq,forward
+
+задала переменные: (не знаю зачем, не использовала потом)
+``` bush
+input_reads=/home/card/microbioms/HW1/dataset
+manifest=/home/card/microbioms/HW1/manifest.txt
+output_qza=/home/card/microbioms/HW1/qiime_formatted
+classifier=/home/card/microbioms/HW1/silva138_AB_V4_classifier.qza
 ```
-cat SRR28984503.fastq | grep '^@.*/1$' -A 3 --no-group-separator > SRR28984503_1.fastq
-cat SRR28984503.fastq | grep '^@.*/2$' -A 3 --no-group-separator > SRR28984503_2.fastq
-cat SRR28984716.fastq | grep '^@.*/1$' -A 3 --no-group-separator > SRR28984716_1.fastq
-cat SRR28984716.fastq | grep '^@.*/2$' -A 3 --no-group-separator > SRR28984716_2.fastq
-cat SRR28984726.fastq | grep '^@.*/1$' -A 3 --no-group-separator > SRR28984726_1.fastq
-cat SRR28984726.fastq | grep '^@.*/2$' -A 3 --no-group-separator > SRR28984726_2.fastq
+Запуск qiime2:
+```
+ qiime tools import   --type 'SampleData[SequencesWithQuality]'   --input-path manifest.txt   --output-path output.qza   --input-format SingleEndFastqManifestPhred33
+```
+
+Запуск deblur:
+```
+qiime deblur denoise-16S --i-demultiplexed-seqs output.qza --p-trim-length 150 --p-sample-stats --o-representative-sequences rep-seqs-deblur.qza --o-table table-deblur.qza --o-stats deblur-stats.qza
 ```
